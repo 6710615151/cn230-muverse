@@ -11,9 +11,4 @@ app.use("/api/grades", require("./grades"));
 app.use("/api/report", require("./report"));
 app.use("/api/schema", require("./schema"));
 
-// health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
 module.exports = app;

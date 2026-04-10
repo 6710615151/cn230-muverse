@@ -4,10 +4,10 @@ const app = express();
 app.use(express.json());
 
 // import route
-app.use("/auth", require("./auth"));
+app.use("api/auth", require("./auth"));
 
 // health check
-app.get("/health", (req, res) => {
+app.get("api/health", (req, res) => {
   res.json({ success: true, status: "ok" });
 });
 

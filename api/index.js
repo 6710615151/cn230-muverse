@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 
 // import routes
-app.use("/api/students", require("./students"));
+app.use("/api/student", require("./student"));
 app.use("/api/courses", require("./courses"));
 app.use("/api/enrollments", require("./enrollments"));
 app.use("/api/grades", require("./grades"));

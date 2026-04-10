@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-
 // GET by id
 router.get("/:id", async (req, res) => {
   try {
@@ -43,4 +42,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

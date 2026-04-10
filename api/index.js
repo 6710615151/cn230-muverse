@@ -1,5 +1,4 @@
-import express from "express";
-
+const express = require("express");
 const app = express();
 
 app.use(express.json());
@@ -8,19 +7,13 @@ app.get("/api/health", (req, res) => {
   res.json({ success: true, status: "ok" });
 });
 
-// import routes
-import student from "./student.js";
-import courses from "./courses.js";
-import enrollments from "./enrollments.js";
-import grades from "./grades.js";
-import report from "./report.js";
-import schema from "./schema.js";
+// routes
+app.use("/api/students", require("./student"));
+app.use("/api/courses", require("./courses"));
+app.use("/api/enrollments", require("./enrollments"));
+app.use("/api/grades", require("./grades"));
+app.use("/api/report", require("./report"));
+app.use("/api/schema", require("./schema"));
 
-app.use("/api/students", student);
-app.use("/api/courses", courses);
-app.use("/api/enrollments", enrollments);
-app.use("/api/grades", grades);
-app.use("/api/report", report);
-app.use("/api/schema", schema);
-
-export default app;
+// 👇 สำคัญมาก
+module.exports = app;

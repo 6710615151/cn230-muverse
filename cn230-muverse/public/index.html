@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CN230 · MU-verse</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #252838;
+    --border: #2e3247;
+    --text: #e8eaf6;
+    --muted: #8b90a8;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --danger: #ff4757;
+    --warn: #ffa502;
+    --success: #2ed573;
+    --font: 'Segoe UI', 'Noto Sans Thai', sans-serif;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* ── Header ── */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 56px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .badge { background: var(--bg3); color: var(--muted); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); }
+  .db-status { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--success); box-shadow: 0 0 6px var(--success); }
+
+  /* ── Nav ── */
+  .nav { display: flex; gap: 2px; padding: 12px 24px 0; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  .nav-btn {
+    padding: 8px 16px; font-size: 13px; color: var(--muted);
+    background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all .15s; border-radius: 6px 6px 0 0;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--bg3); }
+  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Content ── */
+  .content { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  .tab { display: none; }
+  .tab.active { display: block; }
+
+  /* ── Cards / Panels ── */
+  .panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .panel-title { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 16px; }
+
+  /* ── Stats grid ── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat-val { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--bg3); color: var(--muted); font-weight: 600; text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:hover td { background: rgba(108,99,255,.06); }
+  .chip {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  }
+  .chip-a { background: rgba(46,213,115,.15); color: var(--success); }
+  .chip-b { background: rgba(0,212,170,.15); color: var(--accent2); }
+  .chip-c { background: rgba(255,165,2,.15); color: var(--warn); }
+  .chip-f { background: rgba(255,71,87,.15); color: var(--danger); }
+
+  /* ── Buttons ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #7b73ff; }
+  .btn-success { background: rgba(46,213,115,.15); color: var(--success); border: 1px solid rgba(46,213,115,.3); }
+  .btn-success:hover { background: rgba(46,213,115,.25); }
+  .btn-danger { background: rgba(255,71,87,.1); color: var(--danger); border: 1px solid rgba(255,71,87,.3); }
+  .btn-danger:hover { background: rgba(255,71,87,.2); }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  /* ── Forms ── */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  input, select, textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; font-family: inherit; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* ── SQL Playground ── */
+  .sql-editor {
+    width: 100%; min-height: 160px; background: #0d1117; border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 14px; color: #79c0ff; line-height: 1.6; resize: vertical; outline: none;
+  }
+  .sql-editor:focus { border-color: var(--accent); }
+  .sql-toolbar { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
+  .sql-result-meta { font-size: 12px; color: var(--muted); padding: 8px 0; }
+  .sql-result-meta span { color: var(--accent2); font-weight: 600; }
+  .query-examples { display: flex; flex-wrap: wrap; gap: 6px; }
+  .q-chip {
+    background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+    font-size: 11px; padding: 4px 10px; border-radius: 999px; cursor: pointer; transition: all .15s;
+  }
+  .q-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Error/Success toast ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 18px; font-size: 13px; display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4); max-width: 360px;
+  }
+  .toast.show { display: flex; align-items: center; gap: 10px; animation: slideup .2s ease; }
+  .toast.ok { border-color: var(--success); }
+  .toast.err { border-color: var(--danger); }
+  @keyframes slideup { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ── Modal ── */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 200; align-items: center; justify-content: center; }
+  .overlay.show { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 500px; max-width: 95vw; }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+
+  .schema-table { font-size: 12px; }
+  .schema-table td { padding: 6px 10px; }
+  .col-type { color: var(--accent2); font-family: monospace; }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">MU<span>-verse</span></div>
+  <div class="badge">CN230 · Database Systems</div>
+  <div class="db-status">
+    <div class="dot" id="dbDot"></div>
+    <span id="dbLabel">Connecting...</span>
+    <button class="btn btn-secondary btn-sm" onclick="initDB()" title="Initialize / Reset DB">⚙ Init DB</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('dashboard', this)">📊 Dashboard</button>
+  <button class="nav-btn" onclick="switchTab('students', this)">👤 Students</button>
+  <button class="nav-btn" onclick="switchTab('courses', this)">📚 Courses</button>
+  <button class="nav-btn" onclick="switchTab('enrollments', this)">📋 Enrollments</button>
+  <button class="nav-btn" onclick="switchTab('sql', this)">💻 SQL Playground</button>
+  <button class="nav-btn" onclick="switchTab('schema', this)">🗂 Schema</button>
+</nav>
+
+<div class="content">
+
+  <!-- ══ DASHBOARD ══════════════════════════════════════════════════════════ -->
+  <div id="tab-dashboard" class="tab active">
+    <div class="stats" id="statsGrid">
+      <div class="stat"><div class="stat-val" id="s-students">—</div><div class="stat-label">Students</div></div>
+      <div class="stat"><div class="stat-val" id="s-courses">—</div><div class="stat-label">Courses</div></div>
+      <div class="stat"><div class="stat-val" id="s-enroll">—</div><div class="stat-label">Enrollments</div></div>
+      <div class="stat"><div class="stat-val" id="s-gpa">—</div><div class="stat-label">Avg GPA</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="panel">
+        <div class="panel-title">Top Students by GPA</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Faculty</th><th>GPA</th></tr></thead>
+            <tbody id="topStudentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Students by Faculty</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Faculty</th><th>Count</th><th>%</th></tr></thead>
+            <tbody id="facultyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STUDENTS ═══════════════════════════════════════════════════════════ -->
+  <div id="tab-students" class="tab">
+    <div class="panel">
+      <div class="panel-title">Add Student</div>
+      <div class="form-grid">
+        <div><label>Student Code</label><input id="f-code" placeholder="6601006"/></div>
+        <div><label>First Name</label><input id="f-fname" placeholder="ชื่อ"/></div>
+        <div><label>Last Name</label><input id="f-lname" placeholder="นามสกุล"/></div>
+        <div><label>Email</label><input id="f-email" placeholder="email@mu.ac.th"/></div>
+        <div><label>Faculty</label>
+          <select id="f-faculty">
+            <option>ICT</option><option>Science</option><option>Medicine</option>
+            <option>Engineering</option><option>Nursing</option><option>Pharmacy</option>
+          </select>
+        </div>
+        <div><label>Year Level</label>
+          <select id="f-year"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+        </div>
+        <div><label>GPA</label><input id="f-gpa" type="number" step="0.01" min="0" max="4" placeholder="0.00"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addStudent()">＋ Add Student</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input style="flex:1;min-width:180px" placeholder="🔍 Search name / code..." id="search-student" oninput="loadStudents()"/>
+      <select id="filter-faculty" onchange="loadStudents()" style="width:160px">
+        <option value="">All Faculties</option>
+        <option>ICT</option><option>Science</option><option>Medicine</option>
+        <option>Engineering</option><option>Nursing</option><option>Pharmacy</option>
+      </select>
+      <select id="filter-year" onchange="loadStudents()" style="width:120px">
+        <option value="">All Years</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+      </select>
+      <button class="btn btn-secondary" onclick="loadStudents()">↻ Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Code</th><th>Name</th><th>Email</th><th>Faculty</th><th>Year</th><th>GPA</th><th>Actions</th></tr></thead>
+        <tbody id="studentsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ COURSES ════════════════════════════════════════════════════════════ -->
+  <div id="tab-courses" class="tab">
+    <div class="panel">
+      <div class="panel-title">Add Course</div>
+      <div class="form-grid">
+        <div><label>Course Code</label><input id="c-code" placeholder="CN230"/></div>
+        <div><label>Course Name</label><input id="c-name" placeholder="Database Systems"/></div>
+        <div><label>Credits</label><input id="c-credits" type="number" value="3" min="1" max="6"/></div>
+        <div><label>Department</label><input id="c-dept" placeholder="CS"/></div>
+        <div><label>Semester</label><input id="c-sem" placeholder="1/2567"/></div>
+        <div><label>Instructor</label><input id="c-inst" placeholder="Dr.สมศักดิ์"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addCourse()">＋ Add Course</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Code</th><th>Course Name</th><th>Credits</th><th>Dept</th><th>Semester</th><th>Instructor</th><th>Enrolled</th><th>Del</th></tr></thead>
+        <tbody id="coursesBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ ENROLLMENTS ════════════════════════════════════════════════════════ -->
+  <div id="tab-enrollments" class="tab">
+    <div class="panel">
+      <div class="panel-title">Enroll Student into Course</div>
+      <div class="form-grid">
+        <div><label>Student ID</label><input id="e-sid" type="number" placeholder="1"/></div>
+        <div><label>Course ID</label><input id="e-cid" type="number" placeholder="1"/></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addEnrollment()">＋ Enroll</button>
+        <span style="font-size:12px;color:var(--muted);align-self:center">Use IDs from Students / Courses tables</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Student</th><th>Code</th><th>Course</th><th>Credits</th><th>Score</th><th>Grade</th><th>GP</th><th>Date</th></tr></thead>
+        <tbody id="enrollBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ SQL PLAYGROUND ════════════════════════════════════════════════════ -->
+  <div id="tab-sql" class="tab">
+    <div class="panel">
+      <div class="panel-title">Example Queries</div>
+      <div class="query-examples" id="queryExamples"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">SQL Editor</div>
+      <textarea class="sql-editor" id="sqlEditor" spellcheck="false" placeholder="-- Write your SQL query here
+SELECT * FROM students LIMIT 10;"></textarea>
+      <div class="sql-toolbar">
+        <button class="btn btn-primary" onclick="runSQL()">▶ Run Query</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('sqlEditor').value=''">✕ Clear</button>
+        <button class="btn btn-secondary" onclick="formatSQL()">⇄ Format</button>
+        <span style="margin-left:auto;font-size:12px;color:var(--muted)">Ctrl+Enter to run</span>
+      </div>
+      <div class="sql-result-meta" id="sqlMeta"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Result</div>
+      <div id="sqlResult"><span style="color:var(--muted);font-size:13px">Run a query to see results...</span></div>
+    </div>
+  </div>
+
+  <!-- ══ SCHEMA ════════════════════════════════════════════════════════════ -->
+  <div id="tab-schema" class="tab">
+    <div id="schemaContent"></div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Edit Modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-title">Edit Student</div>
+    <div class="form-grid">
+      <input type="hidden" id="edit-id"/>
+      <div><label>First Name</label><input id="edit-fname"/></div>
+      <div><label>Last Name</label><input id="edit-lname"/></div>
+      <div><label>Email</label><input id="edit-email"/></div>
+      <div><label>Faculty</label><input id="edit-faculty"/></div>
+      <div><label>Year</label><input id="edit-year" type="number" min="1" max="6"/></div>
+      <div><label>GPA</label><input id="edit-gpa" type="number" step="0.01" min="0" max="4"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveEdit()">💾 Save</button>
+      <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  { label: "All students", q: "SELECT * FROM students ORDER BY gpa DESC;" },
+  { label: "Top GPA", q: "SELECT student_code, first_name, last_name, gpa FROM students ORDER BY gpa DESC LIMIT 5;" },
+  { label: "Count by faculty", q: "SELECT faculty, COUNT(*) AS total FROM students GROUP BY faculty ORDER BY total DESC;" },
+  { label: "JOIN enrollments", q: `SELECT s.student_code, s.first_name, c.course_code, c.course_name
+FROM enrollments e
+JOIN students s ON e.student_id = s.student_id
+JOIN courses  c ON e.course_id  = c.course_id
+ORDER BY s.student_code;` },
+  { label: "Grades report", q: `SELECT s.first_name, s.last_name, c.course_code, g.score, g.letter_grade, g.grade_point
+FROM grades g
+JOIN enrollments e ON g.enrollment_id = e.enrollment_id
+JOIN students s ON e.student_id = s.student_id
+JOIN courses  c ON e.course_id  = c.course_id
+ORDER BY g.score DESC;` },
+  { label: "Avg GPA by faculty", q: "SELECT faculty, ROUND(AVG(gpa),2) AS avg_gpa, COUNT(*) AS students FROM students GROUP BY faculty ORDER BY avg_gpa DESC;" },
+  { label: "Students NOT enrolled", q: "SELECT * FROM students WHERE student_id NOT IN (SELECT DISTINCT student_id FROM enrollments);" },
+  { label: "Course enrollment count", q: "SELECT c.course_code, c.course_name, COUNT(e.student_id) AS enrolled FROM courses c LEFT JOIN enrollments e ON c.course_id=e.course_id GROUP BY c.course_id ORDER BY enrolled DESC;" },
+  { label: "Student with most courses", q: "SELECT s.student_code, s.first_name, s.last_name, COUNT(e.course_id) AS courses FROM students s LEFT JOIN enrollments e ON s.student_id=e.student_id GROUP BY s.student_id ORDER BY courses DESC LIMIT 1;" },
+  { label: "GPA >= 3.5", q: "SELECT * FROM students WHERE gpa >= 3.5 ORDER BY gpa DESC;" },
+];
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  checkHealth();
+  loadDashboard();
+  buildExamples();
+};
+
+async function checkHealth() {
+  try {
+    const r = await fetch("/api/health");
+    if (r.ok) {
+      document.getElementById("dbDot").classList.add("ok");
+      document.getElementById("dbLabel").textContent = "Connected";
+    }
+  } catch { document.getElementById("dbLabel").textContent = "Offline"; }
+}
+
+async function initDB() {
+  showToast("Initializing DB...", "ok");
+  const r = await fetch("/api/init");
+  const d = await r.json();
+  if (d.success) {
+    showToast("DB initialized & seeded ✓", "ok");
+    loadDashboard(); loadStudents(); loadCourses(); loadEnrollments();
+    document.getElementById("dbDot").classList.add("ok");
+    document.getElementById("dbLabel").textContent = "Connected";
+  } else {
+    showToast(d.error, "err");
+  }
+}
+
+// ── Tab switch ────────────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  btn.classList.add("active");
+  if (name === "students") loadStudents();
+  if (name === "courses") loadCourses();
+  if (name === "enrollments") loadEnrollments();
+  if (name === "schema") loadSchema();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const r = await fetch("/api/report/summary");
+    const d = await r.json();
+    if (!d.success) return;
+    const { total_students, total_courses, total_enrollments, avg_gpa, by_faculty, top_students } = d.data;
+    document.getElementById("s-students").textContent = total_students;
+    document.getElementById("s-courses").textContent = total_courses;
+    document.getElementById("s-enroll").textContent = total_enrollments;
+    document.getElementById("s-gpa").textContent = avg_gpa || "—";
+
+    document.getElementById("topStudentsBody").innerHTML = top_students.map(s => `
+      <tr>
+        <td>${s.student_code}</td>
+        <td>${s.first_name} ${s.last_name}</td>
+        <td>${s.faculty || "—"}</td>
+        <td><span class="chip ${s.gpa>=3.5?'chip-a':s.gpa>=3?'chip-b':'chip-c'}">${s.gpa}</span></td>
+      </tr>`).join("");
+
+    const total = by_faculty.reduce((a, b) => a + parseInt(b.count), 0);
+    document.getElementById("facultyBody").innerHTML = by_faculty.map(f => `
+      <tr>
+        <td>${f.faculty || "N/A"}</td>
+        <td>${f.count}</td>
+        <td style="color:var(--muted)">${total ? Math.round(f.count/total*100) : 0}%</td>
+      </tr>`).join("");
+  } catch (e) { console.error(e); }
+}
+
+// ── Students ──────────────────────────────────────────────────────────────────
+async function loadStudents() {
+  const search = document.getElementById("search-student").value;
+  const faculty = document.getElementById("filter-faculty").value;
+  const year = document.getElementById("filter-year").value;
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (faculty) params.set("faculty", faculty);
+  if (year) params.set("year", year);
+  const r = await fetch("/api/students?" + params);
+  const d = await r.json();
+  if (!d.success) return;
+  document.getElementById("studentsBody").innerHTML = d.data.map(s => `
+    <tr>
+      <td style="color:var(--muted)">${s.student_id}</td>
+      <td><code style="color:var(--accent2)">${s.student_code}</code></td>
+      <td>${s.first_name} ${s.last_name}</td>
+      <td style="color:var(--muted);font-size:12px">${s.email}</td>
+      <td>${s.faculty || "—"}</td>
+      <td style="text-align:center">${s.year_level}</td>
+      <td><span class="chip ${s.gpa>=3.5?'chip-a':s.gpa>=3?'chip-b':s.gpa>=2?'chip-c':'chip-f'}">${s.gpa}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-success btn-sm" onclick="openEdit(${s.student_id},'${s.first_name}','${s.last_name}','${s.email}','${s.faculty}',${s.year_level},${s.gpa})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.student_id})">Del</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">No students found</td></tr>`;
+}
+
+async function addStudent() {
+  const body = {
+    student_code: document.getElementById("f-code").value,
+    first_name: document.getElementById("f-fname").value,
+    last_name: document.getElementById("f-lname").value,
+    email: document.getElementById("f-email").value,
+    faculty: document.getElementById("f-faculty").value,
+    year_level: parseInt(document.getElementById("f-year").value),
+    gpa: parseFloat(document.getElementById("f-gpa").value) || 0,
+  };
+  const r = await fetch("/api/students", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json();
+  if (d.success) { showToast("Student added ✓", "ok"); loadStudents(); loadDashboard(); }
+  else showToast(d.error, "err");
+}
+
+async function deleteStudent(id) {
+  if (!confirm("Delete student #" + id + "?")) return;
+  const r = await fetch("/api/students/" + id, { method: "DELETE" });
+  const d = await r.json();
+  if (d.success) { showToast("Deleted ✓", "ok"); loadStudents(); loadDashboard(); }
+  else showToast(d.error, "err");
+}
+
+function openEdit(id, fn, ln, email, faculty, year, gpa) {
+  document.getElementById("edit-id").value = id;
+  document.getElementById("edit-fname").value = fn;
+  document.getElementById("edit-lname").value = ln;
+  document.getElementById("edit-email").value = email;
+  document.getElementById("edit-faculty").value = faculty;
+  document.getElementById("edit-year").value = year;
+  document.getElementById("edit-gpa").value = gpa;
+  document.getElementById("editOverlay").classList.add("show");
+}
+function closeEdit() { document.getElementById("editOverlay").classList.remove("show"); }
+
+async function saveEdit() {
+  const id = document.getElementById("edit-id").value;
+  const body = {
+    first_name: document.getElementById("edit-fname").value,
+    last_name: document.getElementById("edit-lname").value,
+    email: document.getElementById("edit-email").value,
+    faculty: document.getElementById("edit-faculty").value,
+    year_level: parseInt(document.getElementById("edit-year").value),
+    gpa: parseFloat(document.getElementById("edit-gpa").value),
+  };
+  const r = await fetch("/api/students/" + id, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json();
+  if (d.success) { showToast("Updated ✓", "ok"); closeEdit(); loadStudents(); loadDashboard(); }
+  else showToast(d.error, "err");
+}
+
+// ── Courses ───────────────────────────────────────────────────────────────────
+async function loadCourses() {
+  const r = await fetch("/api/courses");
+  const d = await r.json();
+  if (!d.success) return;
+  document.getElementById("coursesBody").innerHTML = d.data.map(c => `
+    <tr>
+      <td style="color:var(--muted)">${c.course_id}</td>
+      <td><code style="color:var(--accent)">${c.course_code}</code></td>
+      <td>${c.course_name}</td>
+      <td style="text-align:center">${c.credits}</td>
+      <td style="color:var(--muted)">${c.department || "—"}</td>
+      <td style="color:var(--muted)">${c.semester || "—"}</td>
+      <td>${c.instructor || "—"}</td>
+      <td style="text-align:center"><span class="chip chip-b">${c.enrolled_count}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteCourse(${c.course_id})">Del</button></td>
+    </tr>`).join("");
+}
+
+async function addCourse() {
+  const body = {
+    course_code: document.getElementById("c-code").value,
+    course_name: document.getElementById("c-name").value,
+    credits: parseInt(document.getElementById("c-credits").value) || 3,
+    department: document.getElementById("c-dept").value,
+    semester: document.getElementById("c-sem").value,
+    instructor: document.getElementById("c-inst").value,
+  };
+  const r = await fetch("/api/courses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json();
+  if (d.success) { showToast("Course added ✓", "ok"); loadCourses(); }
+  else showToast(d.error, "err");
+}
+
+async function deleteCourse(id) {
+  if (!confirm("Delete course #" + id + "?")) return;
+  const r = await fetch("/api/courses/" + id, { method: "DELETE" });
+  const d = await r.json();
+  if (d.success) { showToast("Deleted ✓", "ok"); loadCourses(); }
+  else showToast(d.error, "err");
+}
+
+// ── Enrollments ───────────────────────────────────────────────────────────────
+async function loadEnrollments() {
+  const r = await fetch("/api/enrollments");
+  const d = await r.json();
+  if (!d.success) return;
+  document.getElementById("enrollBody").innerHTML = d.data.map(e => `
+    <tr>
+      <td style="color:var(--muted)">${e.enrollment_id}</td>
+      <td>${e.first_name} ${e.last_name}</td>
+      <td><code style="color:var(--accent2)">${e.student_code}</code></td>
+      <td>${e.course_name} <span style="color:var(--muted);font-size:11px">(${e.course_code})</span></td>
+      <td style="text-align:center">${e.credits}</td>
+      <td style="text-align:center">${e.score ?? "—"}</td>
+      <td>${e.letter_grade ? `<span class="chip chip-${e.letter_grade.startsWith('A')?'a':e.letter_grade.startsWith('B')?'b':e.letter_grade.startsWith('C')?'c':'f'}">${e.letter_grade}</span>` : "—"}</td>
+      <td style="text-align:center">${e.grade_point ?? "—"}</td>
+      <td style="font-size:11px;color:var(--muted)">${e.enrolled_at ? new Date(e.enrolled_at).toLocaleDateString('th-TH') : ""}</td>
+    </tr>`).join("");
+}
+
+async function addEnrollment() {
+  const body = {
+    student_id: parseInt(document.getElementById("e-sid").value),
+    course_id: parseInt(document.getElementById("e-cid").value),
+  };
+  const r = await fetch("/api/enrollments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json();
+  if (d.success) { showToast("Enrolled ✓", "ok"); loadEnrollments(); }
+  else showToast(d.error, "err");
+}
+
+// ── SQL Playground ────────────────────────────────────────────────────────────
+function buildExamples() {
+  document.getElementById("queryExamples").innerHTML = EXAMPLES.map((e, i) =>
+    `<span class="q-chip" onclick="loadExample(${i})">${e.label}</span>`).join("");
+}
+
+function loadExample(i) {
+  document.getElementById("sqlEditor").value = EXAMPLES[i].q;
+}
+
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") runSQL();
+});
+
+async function runSQL() {
+  const query = document.getElementById("sqlEditor").value.trim();
+  if (!query) return;
+  const resultEl = document.getElementById("sqlResult");
+  const metaEl = document.getElementById("sqlMeta");
+  resultEl.innerHTML = `<span style="color:var(--muted)">Running...</span>`;
+  metaEl.innerHTML = "";
+
+  const r = await fetch("/api/sql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query })
+  });
+  const d = await r.json();
+
+  if (!d.success) {
+    resultEl.innerHTML = `<div style="color:var(--danger);background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:8px;padding:12px;font-family:monospace;font-size:13px">⚠ ${d.error}</div>`;
+    return;
+  }
+
+  const rows = d.data;
+  metaEl.innerHTML = `<span>${d.rowCount}</span> rows · <span>${d.duration}</span>`;
+
+  if (!rows || rows.length === 0) {
+    resultEl.innerHTML = `<div style="color:var(--muted);padding:16px;text-align:center">Query executed successfully. No rows returned.</div>`;
+    return;
+  }
+
+  const cols = Object.keys(rows[0]);
+  resultEl.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map(row =>
+          `<tr>${cols.map(c => `<td style="font-family:${typeof row[c]==='number'?'monospace':'inherit'}">${row[c] === null ? '<span style="color:var(--muted)">NULL</span>' : row[c]}</td>`).join("")}</tr>`
+        ).join("")}</tbody>
+      </table>
+    </div>`;
+}
+
+function formatSQL() {
+  const el = document.getElementById("sqlEditor");
+  let q = el.value.trim();
+  const keywords = ["SELECT","FROM","WHERE","JOIN","LEFT JOIN","RIGHT JOIN","INNER JOIN","ORDER BY","GROUP BY","HAVING","LIMIT","INSERT INTO","VALUES","UPDATE","SET","DELETE FROM","ON","AND","OR","NOT","IN","EXISTS","DISTINCT","ROUND","COUNT","SUM","AVG","MAX","MIN"];
+  keywords.forEach(k => { q = q.replace(new RegExp("\\b" + k + "\\b", "gi"), "\n" + k + " "); });
+  el.value = q.replace(/\n\s*\n/g, "\n").trim();
+}
+
+// ── Schema ────────────────────────────────────────────────────────────────────
+async function loadSchema() {
+  const r = await fetch("/api/schema");
+  const d = await r.json();
+  if (!d.success) return;
+  document.getElementById("schemaContent").innerHTML = d.tables.map(t => `
+    <div class="panel" style="margin-bottom:16px">
+      <div class="panel-title" style="color:var(--accent)">📋 ${t}</div>
+      <div class="table-wrap">
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th></tr></thead>
+          <tbody>${d.schema[t].map(c => `
+            <tr>
+              <td style="font-weight:600">${c.column_name}</td>
+              <td class="col-type">${c.data_type}</td>
+              <td style="color:${c.is_nullable==='YES'?'var(--muted)':'var(--success)'}">${c.is_nullable==='YES'?'NULL':'NOT NULL'}</td>
+              <td style="color:var(--muted);font-size:11px">${c.column_default || "—"}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>`).join("");
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = "ok") {
+  const el = document.getElementById("toast");
+  el.innerHTML = (type === "ok" ? "✓" : "⚠") + " " + msg;
+  el.className = "toast show " + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+</script>
+</body>
+</html>

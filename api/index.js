@@ -4,16 +4,12 @@ const serverless = require("serverless-http");
 const app = express();
 app.use(express.json());
 
-// ✅ mount route
+// routes
 app.use("/auth", require("./auth"));
 
-// ✅ health check
 app.get("/health", (req, res) => {
   res.json({ success: true });
 });
-
-// ✅ export แบบเดียวพอ
-module.exports = serverless(app);
 
 app.get("/test-db", async (req, res) => {
   try {
@@ -33,3 +29,6 @@ app.get("/test-db", async (req, res) => {
     });
   }
 });
+
+// ✅ ต้องอยู่ล่างสุด
+module.exports = serverless(app);

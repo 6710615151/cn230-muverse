@@ -1,14 +1,19 @@
 const express = require("express");
 const app = express();
-
+ 
 app.use(express.json());
-
+ 
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, status: "ok" });
+});
+ 
 // import routes
-app.use("/api/student", require("./student"));
+app.use("/api/students", require("./student"));
 app.use("/api/courses", require("./courses"));
 app.use("/api/enrollments", require("./enrollments"));
 app.use("/api/grades", require("./grades"));
 app.use("/api/report", require("./report"));
 app.use("/api/schema", require("./schema"));
-
+ 
 module.exports = app;
+
